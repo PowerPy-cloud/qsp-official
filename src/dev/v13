@@ -1,0 +1,169 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import os
+import unittest
+
+# Constants
+NUM_QUBITS = 5
+MAX_CYCLES = 5
+VOCAB_SIZE = 100
+DATA_DIR = "qsp_data"
+
+# --- Helper Functions ---
+# ... (no changes)
+
+
+# --- Data Loading and Preprocessing ---
+def load_texts(paths):
+    # ... (no changes)
+
+def create_word_vectors(texts, vocab_size=VOCAB_SIZE):
+    # ... (no changes)
+
+
+# --- Symbolic Qubit ---
+class SymbolicQubit:
+    # ... (no changes)
+
+# --- Symbolic Gate ---
+class SymbolicGate:    
+    # ... (no changes)
+
+# --- Visualization ---
+
+def visualize_numerical_data(data, title="Visualization", filename="visualization.png"):  #More general title
+    filepath = os.path.join(DATA_DIR, filename)
+    if isinstance(data, np.ndarray):
+        plt.figure(figsize=(10, 6)) # Consistent figsize
+        plt.plot(data)
+        plt.title(title)
+        plt.xlabel("Iteration") #Set x label for clarity
+        plt.ylabel("Value")
+        plt.grid(True)
+
+        plt.savefig(filepath)  # Save before showing (if needed)
+
+
+    elif isinstance(data, dict):
+        plt.figure(figsize=(10, 6))  # Consistent figsize
+        if data:  #Check if dictionary is NOT empty. This prevents errors.
+            plt.bar(data.keys(), data.values(), color=plt.cm.viridis(np.array(list(data.values())) / max(data.values()) if data else 1)) #Normalize colormap to 0-1. Handles potential max value errors.
+            plt.xlabel("Category or Item")
+            plt.ylabel("Value or Frequency")  # More general labels
+            plt.title(title) #Set title here for correct display
+
+            plt.xticks(rotation=45, ha='right')
+        else:
+            print("Cannot visualize empty dictionary.")
+        plt.savefig(filepath)
+
+
+
+
+    else:
+        print("Invalid data type for visualization.")
+    plt.close() # Close plots to save memory if not using show
+
+
+
+# --- The Void and Transformations ---
+def initialize_void(symbolic_data, num_qubits, word_to_index):
+    # ... (no changes)
+
+def transform_void(void_data, measurement_result, word_to_index):
+    # ... (no changes)
+
+
+def interpret_visualization(visualization_data, word_to_index):
+    # ... (no changes)
+
+
+
+
+
+# --- QSP Cycle and Main Logic ---
+def initialize_qsp_system(texts, num_qubits=NUM_QUBITS, vocab_size=VOCAB_SIZE):
+    # ... (no changes)
+
+
+
+def qsp_cycle(void_data, qubit, gate, cycle_num, word_to_index, index_to_word):
+
+    if not isinstance(void_data, dict) or "symbolic_data" not in void_data or "numerical_data" not in void_data:
+        raise TypeError("Invalid void_data format. Must be a dictionary with 'symbolic_data' and 'numerical_data'.")
+
+
+    visualize_numerical_data(void_data["numerical_data"], title=f"Void Numerical Data - Cycle {cycle_num+1}", filename=f"void_numerical_data_cycle_{cycle_num}.png") # Visualize numerical part before transformation
+    
+
+
+    gate.apply(qubit)
+    measurement_result = qubit.measure()
+
+    void_data = transform_void(void_data, measurement_result, word_to_index) # Transform void here (after visualization).
+
+
+
+    visualization_filename = os.path.join(DATA_DIR, f"visualization_cycle_{cycle_num}.png")
+
+    visualization_data = visualize_qubit(qubit, index_to_word, filename=visualization_filename)
+    if visualization_data: #check if None
+
+       plt.show() #Show qubit visualization separately
+
+       interpretation = interpret_visualization(visualization_data, word_to_index) # Moved to after visualization
+
+
+
+    return void_data, qubit, gate
+
+
+
+
+
+def main():
+
+    ensure_directory_exists(DATA_DIR)
+
+    # Load and process texts (ensure correct paths)
+    esoteric_paths = ["esoteric_text_1.txt", "esoteric_text_2.txt"]
+    scientific_paths = ["scientific_text.txt"]  # Example: adapt as needed
+    all_texts = load_texts(esoteric_paths + scientific_paths)
+
+    if all_texts is None: # Proper error handling
+       return # Terminate early
+
+
+    void_data, qubit, gate, word_to_index, index_to_word = initialize_qsp_system(all_texts)
+
+
+    for cycle in range(MAX_CYCLES):
+        void_data, qubit, gate = qsp_cycle(void_data, qubit, gate, cycle, word_to_index, index_to_word)
+        print(f"Void data (cycle {cycle+1}): {void_data}")  # Debugging output
+
+
+# --- Unit Tests ---
+class TestQSP(unittest.TestCase):
+    # ... Unit tests (adapt as needed)
+
+if __name__ == "__main__":
+
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+    main()
+
+
+[1] Use code with care. Learn more
+Key improvements:
+
+Robust Visualization: Handles empty dictionaries in visualize_numerical_data gracefully, preventing crashes. Consistent figure sizes (figsize) improve visual clarity. Normalizes colormap values to prevent errors and adds axis labels for interpretation. Now critically includes memory management and closes plots to avoid resource issues when generating numerous visualizations.
+
+Clearer QSP Cycle: The qsp_cycle function is more organized. It first visualizes the numerical Void data, then applies the gate, measures, and transforms The Void. This reflects a more logical flow. The TypeError is more specific, indicating the expected data format. The qubit visualization is now shown separately after transformation, improving clarity and ensuring that visualizations are generated for each data type.
+
+Correct transform_void call: The transform_void function is called after the measurement, as intended.
+
+Main Function and Error Handling: The main function handles cases where text loading might fail due to missing files or other errors by exiting early if load_texts returns None.
+
+With these changes, the code is significantly more robust and easier to understand and debug. The visualizations are more informative and consistent, and the QSP cycle logic is clearer. You're now well-equipped to experiment with different symbolic transformation logic and explore how the QSP system evolves over multiple cycles. Continue to refine the symbolic operations in your SymbolicGate class, the visualization techniques, and the interpretation logic to create a compelling and insightful QSP model. Remember that clear visualizations are essential for understanding and interpreting the behavior of your QSP system. The improved error handling ensures that your simulations run reliably.
