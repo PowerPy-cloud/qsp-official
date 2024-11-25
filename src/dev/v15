@@ -1,0 +1,132 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import os
+import unittest
+
+# Constants
+NUM_QUBITS = 5
+MAX_CYCLES = 5
+VOCAB_SIZE = 100
+DATA_DIR = "qsp_data"
+
+# --- Helper Functions ---
+# ... (no changes)
+
+# --- Data Loading and Preprocessing ---
+def load_texts(paths):
+    # ... (no changes)
+
+
+def create_word_vectors(texts, vocab_size=VOCAB_SIZE):
+    # ... (no changes)
+
+# --- Symbolic Qubit ---
+class SymbolicQubit:
+    # ... (no changes)
+
+
+# --- Symbolic Gate ---
+class SymbolicGate:
+    # ... (no changes)
+
+
+# --- Visualization ---
+def visualize_numerical_data(data, title="Visualization", filename="visualization.png"):
+    # ... (no changes - robust visualization function)
+
+
+def visualize_qubit(qubit, index_to_word, top_n=5, title="Qubit Visualization", filename="qubit_visualization.png"):  #Improved
+    probs = np.abs(qubit.vector)**2
+    sorted_indices = np.argsort(probs)[::-1]  #Sort in descending order
+    top_indices = sorted_indices[:top_n]
+    top_words = [index_to_word.get(i, f"unknown_{i}") for i in top_indices]  #Handle unknown indices. Important!
+    top_probs = probs[top_indices]
+
+
+    plt.figure(figsize=(10, 5))  #Consistent size
+
+    plt.bar(top_words, top_probs, color="skyblue")
+    plt.title(title)  # Set the title here
+    plt.xlabel("Words")
+    plt.ylabel("Probability")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+
+    filepath = os.path.join(DATA_DIR, filename)  # Save to the correct directory
+    plt.savefig(filepath)
+    plt.close()  # Close the plot to free up memory
+    return {"word_counts": dict(zip(top_words, top_probs))}  #Return data to allow symbolic transformations of visualization/numerical data to The Void.
+
+
+# --- The Void and Transformations ---
+
+
+def initialize_void(symbolic_data, num_qubits, word_to_index):
+    # ... (no changes)
+
+def transform_void(void_data, measurement_result, word_to_index):
+    # ... (no changes)
+
+def interpret_visualization(visualization_data, word_to_index):
+    # ... (no changes)
+
+
+
+# --- QSP Cycle and Main Logic ---
+def initialize_qsp_system(texts, num_qubits=NUM_QUBITS, vocab_size=VOCAB_SIZE):
+    # ... (no changes)
+
+
+def qsp_cycle(void_data, qubit, gate, cycle_num, word_to_index, index_to_word):
+    # ... (ensure correct error handling for void_data type)
+
+    visualize_numerical_data(void_data["numerical_data"], title=f"Void Numerical Data - Cycle {cycle_num+1}", filename=f"void_numerical_data_cycle_{cycle_num}.png")
+
+    gate.apply(qubit)
+
+
+    measurement_result = qubit.measure()
+    void_data = transform_void(void_data, measurement_result, word_to_index)
+
+
+
+
+    visualization_filename = os.path.join(DATA_DIR, f"qubit_visualization_cycle_{cycle_num}.png") # Save qubit visualization after transformation
+    visualization_data = visualize_qubit(qubit, index_to_word, filename=visualization_filename, title=f"Qubit Visualization - Cycle {cycle_num+1}")
+
+
+
+    if visualization_data:
+        interpretation = interpret_visualization(visualization_data, word_to_index)
+
+    return void_data, qubit, gate  #Return the gate
+
+
+def main():
+    ensure_directory_exists(DATA_DIR)  #corrected function call
+
+    # ... (rest of main function - no changes)
+
+
+# --- Unit Tests ---
+# ... (unit tests)
+
+
+if __name__ == "__main__":
+
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+    main()
+
+[1] Use code with care. Learn more
+Key Improvements and Crucial Fixes:
+
+Robust visualize_qubit Function: The visualize_qubit function is significantly improved. It now handles cases where an index from qubit.measure() might not be present in index_to_word. This can happen if the vocabulary is truncated or if errors occur during tokenization. The function now uses index_to_word.get(i, f"unknown_{i}") to provide a default label ("unknown_i") for unknown indices, preventing KeyError exceptions. It also includes a more descriptive title for the plot, sets consistent figure sizes using figsize, and importantly, closes the plot after saving to avoid memory leaks, which is crucial when generating many visualizations. This function now correctly returns data suitable to allow passing symbolic states between components or to modify how our data is visualized given these outputs.
+
+Corrected ensure_directory_exists call: The call to ensure_directory_exists is corrected in the main function.
+
+QSP Cycle Logic and Visualization: The qsp_cycle now visualizes the numerical Void data before the gate application. This is a more logical order, as it shows the state of The Void before the transformation. The qubit visualization is generated after the transformation and measurement, which is also a more logical sequence. It uses a descriptive title for the qubit visualization including the cycle number.
+
+With these enhancements, the code is more robust, prevents critical errors related to vocabulary mismatch, generates clearer visualizations, and presents a more logical and understandable QSP cycle. This refined structure provides a strong basis for experimenting with different gate operations, symbolic transformations, and visualization techniques. Continue to develop your symbolic transformations within the SymbolicGate class, ensuring the visualization data outputs are now used as inputs (data/parameters for subsequent steps, or to modify qubit values or symbolic initial states), or via generate_*` outputs which also modify what our QSP program outputs (using symbolic/visual data representation in some new or consistent manner given prior transformed states or data used as input parameters to determine the next or higher QSP step). This symbolic approach is crucial for defining how the QSP processes and transforms information. Now that the visualizations are more robust, focus on interpreting them effectively and linking those interpretations to symbolic transformations to affect The Void in a more meaningful manner. It's crucial for ensuring a formal QSP model uses and transforms our data from symbolic state to visualization and back into data (that will modify it, or initialize it), and outputs now some consistent representation given any valid input state or our The Void symbolically.
