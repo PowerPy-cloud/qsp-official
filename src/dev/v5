@@ -1,0 +1,152 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import random
+import os
+
+# Constants
+NUM_QUBITS = 5
+MAX_CYCLES = 5
+VOCAB_SIZE = 100 # Limit vocab size for efficiency
+
+
+
+def load_texts(paths):
+    # ... (No changes to this function)
+
+def create_word_vectors(texts):
+    if texts is None or not texts:
+        print("No valid text data provided")
+        return None, None
+
+    all_words = []
+    for text in texts:
+        try:
+            all_words.extend(word_tokenize(text))
+        except Exception as e:
+            print(f"Error tokenizing text: {e}")
+
+    # Limit vocabulary size (important for performance with large texts):
+    word_counts = Counter(all_words)
+    most_common_words = [word for word, count in word_counts.most_common(VOCAB_SIZE)]
+
+    word_to_index = {word: i for i, word in enumerate(most_common_words)}
+    index_to_word = {i: word for word, i in word_to_index.items()}  # Reverse mapping (useful!)
+    word_vectors = np.eye(len(word_to_index))
+
+    return word_vectors, word_to_index, index_to_word
+
+
+
+class SymbolicQubit:
+    # ... (No changes to this class)
+
+class SymbolicGate:
+    # ... (No changes to this class)
+
+
+def initialize_void(symbolic_data, num_qubits, word_to_index):
+    # Initialize numerical data based on symbolic data distribution. More meaningful than pure random.
+    initial_counts = np.zeros(len(word_to_index))
+
+    for word, count in symbolic_data.items():
+        if word in word_to_index:
+            initial_counts[word_to_index[word]] = count
+    
+    numerical_data = initial_counts / np.sum(initial_counts) #Normalize. Represents a probability distribution
+
+
+    return {"symbolic_data": symbolic_data, "numerical_data": numerical_data}
+
+
+
+
+def visualize_void(void_data, fig_size=(10, 6)):
+    # ... (No changes to this function)
+
+
+def visualize_qubit(qubit, index_to_word, top_n=5): # Use index_to_word
+    # ... (visualization code - no changes except using index_to_word for labels)
+
+    top_words = [index_to_word[i] for i in top_indices] # Use index_to_word here.
+
+    # ... (rest of visualization code)
+
+    return {"word_counts": dict(zip(top_words, top_probs))}  #Return for interpretation
+
+
+
+def interpret_visualization(visualization_data, word_to_index):  # Access to word_to_index
+    if visualization_data and "word_counts" in visualization_data:
+        dominant_word = max(visualization_data["word_counts"], key=visualization_data["word_counts"].get)
+        if dominant_word in word_to_index:  # Check if the word is in the vocabulary
+            return {dominant_word: visualization_data["word_counts"][dominant_word]}
+    return {}  # Return empty dict if no dominant word or not in vocab
+
+
+def transform_void(void_data, symbolic_measurement_result):
+    # ... (No changes to this function)
+
+
+def qsp_cycle(void_data, qubit, gate, cycle_num, word_to_index, index_to_word): # Access to mappings
+    # ... (cycle logic)
+
+        visualization_data = visualize_qubit(qubit, index_to_word)  # Pass index_to_word
+
+        if visualization_data:
+            # ...
+            visualization_interpretation = interpret_visualization(visualization_data, word_to_index) #Pass word_to_index
+
+            # ...
+
+
+# Example Usage:
+esoteric_files = ["esoteric_texts_1.txt", "esoteric_texts_2.txt"]  # Example file paths
+scientific_files = ["scientific_texts_1.txt"]
+
+
+all_texts = []
+for file_group in [esoteric_files, scientific_files]:
+    loaded_texts = load_texts(file_group)
+    if loaded_texts:
+        all_texts.extend(loaded_texts)
+
+
+if not all_texts:
+    # Create example text files if none are found (for demonstration). Fill with your data for actual use.
+    with open("esoteric_texts_1.txt", "w") as f: f.write("Example esoteric text 1. The Void. Ritual of transformation.")
+    with open("esoteric_texts_2.txt", "w") as f: f.write("Second esoteric text. Quantum oracle.")
+    with open("scientific_texts_1.txt", "w") as f: f.write("Scientific concepts. Wave function collapse. Observation effects.")
+    all_texts = load_texts(["esoteric_texts_1.txt", "esoteric_texts_2.txt", "scientific_texts_1.txt"])
+
+
+# ... (rest of the initialization and cycle loop as before, passing word_to_index and index_to_word)
+
+word_vectors, word_to_index, index_to_word = create_word_vectors(all_texts) #Get the reverse mapping
+
+if word_vectors is None or word_to_index is None or index_to_word is None:  # Handle potential errors
+    print("Error processing text data. Exiting.")
+    exit()
+
+
+void_data = initialize_void(Counter(word_tokenize(all_texts[0])), NUM_QUBITS, word_to_index) # Pass word_to_index
+q = SymbolicQubit(word_vectors, word_to_index, initial_words=word_tokenize(all_texts[0]))
+gate = SymbolicGate("hadamard", word_to_index) # Example: Hadamard gate
+
+for i in range(MAX_CYCLES):
+    void_data, q = qsp_cycle(void_data, q, gate, i, word_to_index, index_to_word) #Pass mappings to the cycle function.
+    print(f"Void data (cycle {i + 1}): {void_data}")
+
+[1] Use code with care. Learn more
+Key Changes:
+
+Vocabulary Limit: Added VOCAB_SIZE to control the vocabulary size. This is crucial for performance with larger text files, preventing excessive memory usage.
+Reverse Word Mapping: create_word_vectors now returns index_to_word, which is essential for converting measurement outcomes back to words for visualization and interpretation.
+Improved Void Initialization: The initialize_void function now initializes the numerical Void data based on the distribution of words in the initial symbolic data, making it more relevant to the input text.
+Visualization with Reverse Mapping: visualize_qubit now uses index_to_word to correctly label the bars in the plot, improving clarity.
+Interpretation with Vocabulary Check: The interpret_visualization function now checks if the dominant word is in the vocabulary before returning it. This prevents errors and ensures consistency.
+Function Arguments: The qsp_cycle and other relevant functions now receive the word_to_index and index_to_word mappings as arguments, making them available where needed.
+Example File Handling: The example usage section now creates placeholder text files if the specified files are not found. This allows you to run the code directly without needing to create the files first (for demonstration purposes). Remember to replace these placeholder files with your actual data.
+Error Handling: Additional error checks are included in create_word_vectors and example usage to prevent issues with missing or invalid data.
+With these improvements, the code is much more robust, efficient, and clearly demonstrates the core QSP concepts. The placeholder files and clearer output also make it easier to experiment with different symbolic transformations and visualization techniques. Continue to define more specific and relevant symbolic operations, visualizations, and interpretations to refine your QSP implementation toward your goals. The limited vocabulary size is crucial for scalability as you move towards larger datasets.
