@@ -1,0 +1,119 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import os
+import unittest
+
+# Constants
+NUM_QUBITS = 5
+MAX_CYCLES = 5
+VOCAB_SIZE = 100
+DATA_DIR = "qsp_data"
+
+# --- Helper Functions ---
+# ... (no changes)
+
+# --- Data Loading and Preprocessing ---
+def load_texts(paths):
+    # ... (robust file loading - no changes)
+
+def create_word_vectors(texts, vocab_size=VOCAB_SIZE):
+    # ... (robust word vector creation - no changes)
+
+# --- Symbolic Qubit ---
+class SymbolicQubit:
+    # ... (robust initialization and measurement - no changes)
+
+# --- Symbolic Gate ---
+class SymbolicGate:    
+    # ... (flexible gate application logic - no changes)
+
+# --- Visualization ---
+def visualize_numerical_data(data, title="Visualization", filename="visualization.png"):
+    # ... (robust visualization function – no changes)
+
+def visualize_qubit(qubit, index_to_word, top_n=5, title="Qubit Visualization", filename="qubit_visualization.png"):
+    # ... (robust visualization function – no changes)
+
+
+# --- The Void and Transformations ---
+def initialize_void(symbolic_data, num_qubits, word_to_index):
+    # ... (no changes)
+
+def transform_void(void_data, measurement_result, index_to_word, word_to_index):
+    # ... (handles missing measurement_result - no changes)
+
+def interpret_visualization(visualization_data, word_to_index):
+    # ... (no changes)
+
+
+
+# --- QSP Cycle and Main Logic ---
+def initialize_qsp_system(texts, num_qubits=NUM_QUBITS, vocab_size=VOCAB_SIZE):
+    # ... (no changes)
+
+def qsp_cycle(void_data, qubit, gate, cycle_num, word_to_index, index_to_word):
+
+    visualize_numerical_data(void_data["numerical_data"], title=f"Void Numerical Data - Cycle {cycle_num+1}", filename=f"void_numerical_data_cycle_{cycle_num}.png")
+
+
+    gate.apply(qubit)  #Apply gate *before* measurement
+    measurement_result = qubit.measure()
+
+
+    if measurement_result is not None: #Correct placement of transformation and visualization.
+
+        void_data = transform_void(void_data, measurement_result, index_to_word, word_to_index)
+
+        visualization_filename = os.path.join(DATA_DIR, f"qubit_visualization_cycle_{cycle_num}.png")
+        visualization_data = visualize_qubit(qubit, index_to_word, filename=visualization_filename, title=f"Qubit Visualization - Cycle {cycle_num+1}")
+
+        if visualization_data:
+            interpretation = interpret_visualization(visualization_data, word_to_index)
+
+            # Example: Use interpretation to perturb The Void.  This is where you connect visualizations to transformations.
+            if interpretation:  # Check if interpretation is not empty. Important!
+                dominant_word = max(interpretation, key=interpretation.get)  # Get the dominant word if it exists
+                if dominant_word in word_to_index: #Check existence
+                    index = word_to_index[dominant_word]
+                    perturbation_amount = interpretation[dominant_word]  # Example perturbation based on visualization
+                    void_data['numerical_data'][index % NUM_QUBITS] += perturbation_amount #Example. Ensure index is within bounds
+
+
+    return void_data, qubit, gate
+
+
+
+
+def main():
+    # ... (ensure directory, load texts)
+
+    if all_texts:
+        # ... (create word vectors, initialize void, gate, qubit)
+
+        for cycle in range(MAX_CYCLES):
+            void_data, q, initial_gate = qsp_cycle(void_data, q, initial_gate, cycle, word_to_index, index_to_word)
+            print(void_data) #Print void data after each cycle
+
+
+
+
+# --- Unit Tests ---  (Add and adapt tests as needed)
+# ... (Your Unit Tests)
+
+
+
+if __name__ == "__main__":
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)  #Run tests before main code
+    main()
+
+
+[1] Use code with care. Learn more
+Key Improvements:
+
+Perturbation Logic: The example perturbation in qsp_cycle is now correctly placed after the visualization and interpretation, and only applied if a valid interpretation exists. The perturbation is now linked to the dominant_word from the visualization interpretation, providing a more meaningful connection between the visualization and the transformation of The Void. The perturbation logic also handles potential KeyError and IndexError exceptions by checking that the dominant_word is in the vocabulary and using the modulo operator (% NUM_QUBITS) to ensure the index is within the valid range for the numerical_data array. These checks are extremely important to prevent crashes.
+Visualization Timing: Ensures visualization for The Void happens before the gate.apply step.
+Return Gate from qsp_cycle: The qsp_cycle function now correctly returns the gate, The Void (void_data), and the qubit after each cycle.
+This version strengthens the connection between visualization, interpretation, and transformation, which is crucial for a dynamic QSP model. The improved error handling and logical flow make the code more robust and easier to understand. Continue to experiment with different symbolic gate operations, refine your visualization and interpretation methods, and create targeted unit tests to validate your QSP logic thoroughly. The improved structure and error handling in this version provide a much better foundation for exploring more sophisticated QSP concepts. As you develop more advanced logic for generating symbolic data, numerical transformations, and visualizations, remember to incorporate appropriate error handling and input validation at each stage to ensure robustness and prevent unexpected behavior. The key next step is to implement more specific symbolic transformations, connecting them to your visualizations and interpretation logic.
