@@ -1,0 +1,129 @@
+You've identified key areas for improvement, and I can offer further refinements to the code, focusing on clearer organization, more robust functionality, and better integration with the QSP concepts you've described.
+
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import os
+
+# Constants (Configurable parameters)
+NUM_QUBITS = 5
+MAX_CYCLES = 5
+VOCAB_SIZE = 100
+DATA_DIR = "generated_data"  # Directory for generated data
+
+
+# --- Helper Functions ---
+def ensure_directory_exists(directory):
+    os.makedirs(directory, exist_ok=True)
+
+
+def save_data(filename, data, file_format="npy"): # More general save function
+    filepath = os.path.join(DATA_DIR, filename)  # Include data directory
+    if file_format == "npy":
+        np.save(filepath, data)
+    elif file_format == "txt":
+        with open(filepath, "w") as f:
+            f.write(str(data))
+    else:
+        print(f"Error: Unsupported file format: {file_format}")
+
+
+
+# --- Data Generation ---
+
+def generate_symbolic_text(num_words=100, vocab_size=50, filename="symbolic_text.txt"): # More descriptive filename
+   # ... (rest of the function - no changes except for filename)
+
+
+def generate_symbolic_glyphs(num_glyphs=20, filename="symbolic_glyphs.txt"): # More descriptive filename
+    # ... (No changes to function body)
+
+# --- Numerical Representation ---
+
+def create_numerical_representation(text, method="one-hot", vocab_size=100, filename="numerical_representation.npy"):
+   # ... (no changes to function body)
+
+# --- Visualization ---
+
+def visualize_numerical_data(data, title="Numerical Data Visualization", filename="visualization.png"):
+
+    filepath = os.path.join(DATA_DIR, filename)  # Add directory path
+
+
+    # ... (rest of the function – no changes except saving to filepath)
+
+
+# --- Main QSP Simulation Logic ---
+
+def initialize_qsp_system(texts, num_qubits=NUM_QUBITS, vocab_size=VOCAB_SIZE):
+    word_vectors, word_to_index, index_to_word = create_word_vectors(texts)
+    initial_symbolic_data = Counter(word_tokenize(texts[0]))  # Initialize from the first text
+
+    void_data = initialize_void(initial_symbolic_data, num_qubits, word_to_index)
+    qubit = SymbolicQubit(word_vectors, word_to_index, initial_words=word_tokenize(texts[0]))
+
+    # Example initial gate (Hadamard)
+    gate = SymbolicGate("hadamard", word_to_index)
+    return void_data, qubit, gate, word_to_index, index_to_word
+
+
+
+def qsp_cycle(void_data, qubit, gate, cycle_num, word_to_index, index_to_word):
+    # ... (No changes to function logic)
+
+    # --- Saving data at each cycle ---
+    save_data(f"void_data_cycle_{cycle_num}.npy", void_data)  # Save Void data for each cycle
+    visualization_filename = f"visualization_cycle_{cycle_num}.png"
+    visualization_data = visualize_qubit(qubit, index_to_word, filename=visualization_filename)
+
+    # ... (rest of the cycle function)
+
+
+
+
+def main():
+    ensure_directory_exists(DATA_DIR)  # Ensure the data directory exists
+
+    esoteric_texts = ["This is The Void text.", "The Void transforms and evolves."] # Example texts
+    scientific_texts = ["Quantum symbolic processing."]
+
+    all_texts = esoteric_texts + scientific_texts
+
+    # Generate and Save Symbolic Data
+    generate_symbolic_text(filename=os.path.join(DATA_DIR,"esoteric_text.txt"), num_words=200, vocab_size=75)  # Use data dir
+    generate_symbolic_glyphs(filename=os.path.join(DATA_DIR,"esoteric_glyphs.txt"), num_glyphs=30)  # Use data dir
+
+
+    # Create Numerical Representations (and save them)
+    numerical_rep_esoteric = create_numerical_representation(all_texts[0], method="one-hot", filename="numerical_rep_esoteric.npy")  # One-hot
+    numerical_rep_scientific = create_numerical_representation(all_texts[1], method="frequency", filename="numerical_rep_scientific.npy")  # Frequency
+
+    visualize_numerical_data(numerical_rep_esoteric, title="Esoteric Text - One-Hot", filename="esoteric_visualization.png")  # Save visualizations
+    visualize_numerical_data(numerical_rep_scientific, title="Scientific Text - Frequency", filename="scientific_visualization.png")
+
+
+    # Initialize and Run QSP Simulation:
+    void_data, qubit, gate, word_to_index, index_to_word = initialize_qsp_system(all_texts)
+
+
+    for i in range(MAX_CYCLES):
+        void_data, qubit = qsp_cycle(void_data, qubit, gate, i, word_to_index, index_to_word)
+        print(f"Void data (cycle {i+1}): {void_data}")
+
+if __name__ == "__main__":
+    main()
+
+[1] Use code with care. Learn more
+Key Improvements:
+
+Clearer Organization: The code is now structured with helper functions, data generation, numerical representation, visualization, and the main QSP simulation logic separated for better readability and maintainability.
+Data Directory: All generated data (symbolic text, glyphs, numerical representations, visualizations) are now saved to a specified DATA_DIR. This keeps your project organized.
+Generalized Saving: The save_data function now handles saving both NumPy arrays and text data, making it more versatile.
+More Descriptive Filenames: The generated files now have more descriptive names, making it easier to understand their contents.
+Visualization Filepaths: The visualization function now includes the data directory in the save path.
+Example Text Data: I've provided example text for initial testing (which is still symbolic). You would normally load text input files.
+Per-Cycle Data Saving: The qsp_cycle function now saves The Void data and visualization for each cycle of the simulation, allowing you to track the evolution of the system and analyze intermediate results.
+Clearer Example Usage: The main function clearly demonstrates the data generation, visualization, and QSP simulation steps.
+This version provides a much more organized, robust, and informative framework for your QSP project. The consistent use of a data directory, descriptive filenames, and per-cycle data saving will make your experiments and analysis much easier. You can now readily experiment with different symbolic data sources, numerical representations, visualization techniques, and gate operations, with clear outputs generated at each step. The next key step is to define your specific symbolic transformations and how they relate to the numerical representation and visualizations, which is crucial to the core QSP logic. This structured code now makes it easy to incorporate those symbolic manipulations and analyze their effects on the QSP states.
