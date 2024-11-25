@@ -1,0 +1,140 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from nltk.tokenize import word_tokenize
+import random
+import os
+
+
+# ... (SymbolicQubit and SymbolicGate classes - no changes)
+
+
+def load_texts(paths):
+    # ... (No changes to this function)
+
+def create_word_vectors(texts):
+    # ... (No changes to this function)
+
+
+def visualize_void(void_data):  # Enhanced visualization
+    plt.figure(figsize=(12, 8))
+    plt.subplot(2, 1, 1)  # Subplot for symbolic data
+    if "symbolic_data" in void_data and isinstance(void_data["symbolic_data"], dict):
+        plt.bar(void_data["symbolic_data"].keys(), void_data["symbolic_data"].values())
+        plt.title("The Void - Symbolic Data")
+
+    plt.subplot(2, 1, 2)  # Subplot for numerical data
+    if "numerical_data" in void_data and isinstance(void_data["numerical_data"], np.ndarray):
+        plt.plot(void_data["numerical_data"])
+        plt.title("The Void - Numerical Data")
+
+    plt.tight_layout()  # Adjust layout to prevent overlap
+    plt.show()
+
+
+
+
+def visualize_qubit(qubit, top_n=5):
+    # ... (No changes to this function)
+
+
+def interpret_visualization(visualization_data):
+    # Example:  Extract dominant word from visualization
+    if isinstance(visualization_data, dict): # Example processing of visualization
+            word_counts = visualization_data.get("word_counts", {})  # Safe access
+            if word_counts:  # Check if not empty
+                dominant_word = max(word_counts, key=word_counts.get)  # Get word with max count
+                return {dominant_word: word_counts[dominant_word]}  # Return as a dictionary
+    return {} # Default return empty dict
+
+
+
+
+
+def transform_void(void_data, visualization_interpretation):
+    # Example transformation: Update symbolic data based on dominant word
+    if visualization_interpretation: #Check if the interpretation contains data
+        for word, count in visualization_interpretation.items():
+            if word in void_data["symbolic_data"]:
+                void_data["symbolic_data"][word] += count # Increase count in The Void
+            else:
+                 void_data["symbolic_data"][word] = count  # Add new word
+
+
+    #Example - Add Gaussian noise to numerical data:
+    void_data["numerical_data"] += np.random.normal(0, 0.1, size=len(void_data["numerical_data"]))
+
+
+    return void_data
+
+
+
+def initialize_void(symbolic_data):
+    # ... (No changes to this function)
+
+
+
+def qsp_cycle(void_data, qubit, gate, cycle_num):  # Add cycle_num
+    print(f"\n--- QSP Cycle {cycle_num + 1} ---")  # Print cycle number
+    visualize_void(void_data)
+
+    # Dynamic Gate parameters based on Void:
+    dominant_words = sorted(void_data["symbolic_data"], key=void_data["symbolic_data"].get, reverse=True)[:2]
+    gate.target_words = dominant_words  # Update gate's targets
+
+    gate.apply(qubit)
+    measurement_outcome = qubit.measure()
+
+    if measurement_outcome is not None:
+        measured_word = list(qubit.word_to_index.keys())[measurement_outcome]
+        print(f"Measured word: {measured_word}")
+
+        visualization_data = visualize_qubit(qubit)
+
+
+        if visualization_data:
+            plt.show() # Show plot after visualize_qubit
+            visualization_interpretation = interpret_visualization(visualization_data)
+            void_data = transform_void(void_data, visualization_interpretation)
+
+    return void_data, qubit
+
+
+
+# Example usage (with file handling and more robust checks):
+
+esoteric_paths = ["esoteric_texts.txt", "other_esoteric_text.txt"]
+scientific_paths = ["scientific_texts.txt"]
+
+# ... (File creation code as before)
+
+esoteric_texts = load_texts(esoteric_paths)
+scientific_texts = load_texts(scientific_paths)
+
+if esoteric_texts and scientific_texts:
+    # ... (Word vectors and initial symbolic data as before)
+
+    void_data = initialize_void(initial_symbolic_data)
+    q = SymbolicQubit(word_vectors, word_to_index, initial_words=word_tokenize(esoteric_texts[0]))
+
+    #Example starting gate
+    gate = SymbolicGate("hadamard") # No initial target words
+
+    num_cycles = 3
+    for i in range(num_cycles):
+        void_data, q = qsp_cycle(void_data, q, gate, i)  # Pass cycle number
+
+
+        print(void_data) # Print void data at each step
+
+
+
+[1] Use code with care. Learn more
+Key improvements:
+
+Enhanced Visualization: The visualize_void function now uses subplots to display both symbolic and numerical data more clearly within a single figure. Uses plt.tight_layout() to prevent overlapping plot elements.
+Dynamic Gate Parameters: The qsp_cycle function now dynamically updates the SymbolicGate's target words based on the dominant words in the current Void state. This creates a crucial feedback loop. Also displays the cycle number.
+Clearer interpret_visualization: Provides a more concrete example of how to extract meaningful information (dominant word) from a visualization. Includes checks for empty dictionaries and uses .get() for safe access.
+Improved transform_void: Demonstrates both updating existing words and adding new words to the symbolic data based on visualization interpretation. Includes an example of adding Gaussian noise to the numerical Void data. Now includes a check to only execute if visualization_interpretation contains data.
+Robust Example Usage: More robust checks to prevent crashes due to None values. Adds example gate initialization.
+This refined code demonstrates more concretely the dynamic feedback, visualization interpretation, and transformation steps central to your QSP concept. Continue to replace placeholder functions and adapt the examples to reflect the intricacies of your evolving project. The clearer and more specific the implementation of transformations and visualizations, the easier testing and validation will be. This iterative process of development and refinement will be crucial as you move towards a fully functional QSP.
